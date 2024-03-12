@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Kanit, Nova_Square } from "next/font/google";
 import "./globals.css";
+// layouts
+import Navbar from "@/layout/Navbar";
+import MobileNav from "@/layout/MobileLayout/MobileNav";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -35,7 +38,9 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${inter.variable} ${kanit.variable} ${nova.variable}`}>
+				<Navbar />
 				{children}
+				<MobileNav />
 			</body>
 		</html>
 	);

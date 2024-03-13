@@ -20,7 +20,7 @@ const ThirdSection = () => {
 					before.
 				</p>
 				<div className="flex flex-col items-center justify-between gap-4 w-full mt-16 md:w-[70%] md:flex-row">
-					<div className="flex gap-2 items-center justify-between border border-gray-400 rounded-xl p-4 w-[70%] cursor-pointer duration-500 hover:bg-gray-100 md:w-1/2">
+					<div className="flex gap-2 items-center justify-between border border-gray-400 rounded-xl p-4 w-[70%] cursor-pointer duration-500 hover:bg-gray-100 md:w-1/2 md:p-2">
 						<Image
 							src="/png/Vector.png"
 							width={30}
@@ -34,7 +34,7 @@ const ThirdSection = () => {
 							<p className="text-gray-600">App Store</p>
 						</div>
 					</div>
-					<div className="flex gap-2 items-center justify-between border border-gray-400 rounded-xl p-4 w-[70%] cursor-pointer duration-500 hover:bg-gray-100 md:w-1/2">
+					<div className="flex gap-2 items-center justify-between border border-gray-400 rounded-xl p-4 w-[70%] cursor-pointer duration-500 hover:bg-gray-100 md:w-1/2 md:p-2">
 						<Image
 							src="/png/play.png"
 							width={30}

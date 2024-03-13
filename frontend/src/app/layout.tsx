@@ -4,6 +4,7 @@ import "./globals.css";
 // layouts
 import Navbar from "@/layout/Navbar";
 import MobileNav from "@/layout/MobileLayout/MobileNav";
+import Footer from "@/layout/Footer";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({
 				<Navbar />
 				{children}
 				<MobileNav />
+				<Footer />
 			</body>
 		</html>
 	);

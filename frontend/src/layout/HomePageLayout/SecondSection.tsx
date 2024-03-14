@@ -4,7 +4,7 @@ const SecondSection = () => {
 	return (
 		<div className="flex flex-col items-center gap-16 mt-32 md:flex-row">
 			<div className="w-full text-black md:w-1/2">
-				<h3 className="w-full font-kanit text-3xl font-semibold md:w-2/3">
+				<h3 className="w-full font-kanit text-3xl font-semibold dark:text-light md:w-2/3">
 					We take the work off your hands.
 				</h3>
 				<p className="text-sm font-inter text-gray-400 mt-4">

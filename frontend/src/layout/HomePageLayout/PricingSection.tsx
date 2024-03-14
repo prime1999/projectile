@@ -73,12 +73,12 @@ const PricingSection = () => {
 			<h3 className="text-center font-kanit text-semibold text-3xl text-black">
 				Our Pricing Plan
 			</h3>
-			<p className="w-1/2 mx-auto mt-4 text-center font-inter text-gray-400 text-sm">
+			<p className="w-full mx-auto mt-4 text-center font-inter text-gray-400 text-sm md:w-1/2">
 				Embrace life's vastness, venture forth, and discover the wonders waiting
 				beyond. The world beckons; seize its grand offerings now!
 			</p>
-			<div className="w-9/12 mx-auto mt-16">
-				<ul className="grid grid-cols-3 gap-8 font-inter">
+			<div className="w-9/12 mx-auto mt-16 md:w-11/12 lg:w-9/12">
+				<ul className="grid grid-cols-1 gap-4 font-inter md:grid-cols-3 lg:gap-8">
 					<li className="shadow-md p-4 rounded-xl cursor-pointer duration-500 dark:border  dark:border-stroke hover:bg-cyan-50 dark:hover:bg-darkBlue">
 						<h6 className="text-black text-sm text-center font-semibold dark:text-light">
 							Free Plan

@@ -1,6 +1,10 @@
 import User from "../models/userModel.js";
 import asyncHandler from "../middleware/asyncMiddleware.js";
 import generateToken from "../utils/generateToken.js";
+import nodemailer from "nodemailer";
+
+// init code
+let code = "";
 
 // ---------------------------- function to register users --------------------------------- //
 const registerUser = asyncHandler(async (req, res) => {
@@ -13,23 +17,75 @@ const registerUser = asyncHandler(async (req, res) => {
 			// if not then show an error
 			throw new Error("Please fill all fields");
 		}
-		// check if there is a user with the same username or email
+		//check if there is a user with the same username or email
 		const sameUserName = await User.find({ username: username });
 		const sameEmail = await User.find({ email: email });
 		console.log({ sameUserName, sameEmail });
+		console.log(0);
+		// check if the username and email has not been used
 		if (sameUserName.length !== 0 || sameEmail.length !== 0) {
 			throw new Error("please choose a unique username and email");
 		}
 		console.log(req.body);
-		// if all fields are filled then create user
+		// send the verification code
+		generateRandomCode(8);
+		// Create Nodemailer transporter with Gmail SMTP settings
+		const transporter = nodemailer.createTransport({
+			service: "Gmail",
+			auth: {
+				user: "moshoodolabanji22@gmail.com", // Your Gmail email address
+				pass: "rdwv pawg frpm grcj", // Your Gmail password
+			},
+			tls: {
+				rejectUnauthorized: false,
+			},
+		});
+		let mailDetails = {
+			from: "moshoodolabanji22@gmail.com",
+			to: email,
+			subject: "Test mail",
+			text: `Your verification code is ${code}`,
+		};
+		// send the mail with verification code to the user
+		transporter.sendMail(mailDetails, function (err, data) {
+			if (err) {
+				console.error("Error sending email:", err);
+			} else {
+				res.status(200).json({
+					message: "Email sent successfully",
+				});
+			}
+		});
+	} catch (error) {
+		// if an error occured in the try block, then
+		res.status(400);
+		throw new Error(error.message);
+	}
+});
+
+// ----------------------- function to verify code and adding user to DB ---------------------------------- //
+const verifyCode = asyncHandler(async (req, res) => {
+	try {
+		const { username, email, password, userType, verificationCode } = req.body;
+		// check if te code is the same as the one sent
+		console.log({ code, verificationCode });
+		if (code === verificationCode) {
+			res.status(200).json({
+				message: "verification successful",
+			});
+		} else {
+			throw new Error("Incorrect code, please try again");
+		}
+		// create the users detail
 		const userData = {
 			username,
 			email,
 			password,
 			userType,
 		};
+		// create the user in the DB
 		const user = await User.create(userData);
-		// if the user wa created then
+		// if the user was created then
 		if (user) {
 			// generate a token here
 			generateToken(res, user._id);
@@ -102,4 +158,19 @@ const logUserOut = asyncHandler(async (req, res) => {
 	}
 });
 
-export { registerUser, authUser, logUserOut };
+// ------------------------------- function to generate code -------------------------------- //
+const generateRandomCode = (length) => {
+	// Define the characters from which to generate the code
+	const charset = "0123456789";
+	// Loop through the specified length and append a random character from the charset to the code
+	for (let i = 0; i < length; i++) {
+		// Generate a random index
+		const randomIndex = Math.floor(Math.random() * charset.length);
+		// Append the character at the random index to the code
+		code += charset[randomIndex];
+	}
+
+	return code;
+};
+
+export { registerUser, authUser, logUserOut, verifyCode };

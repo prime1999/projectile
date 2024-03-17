@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
 		},
 		userType: {
 			type: String,
-			enum: ["client", "service_provider"],
+			enum: ["client", "service_provider", "admin"],
 			default: "client",
 		},
 		profile: {

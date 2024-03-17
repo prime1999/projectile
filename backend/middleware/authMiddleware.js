@@ -43,4 +43,18 @@ const isProvider = async (req, res, next) => {
 	}
 };
 
-export { protect, isProvider };
+// ---------------------------------- function to check if the user is an admin --------------------------- //
+const admin = (req, res, next) => {
+	// check if there is a user logged in and if the user is an admin
+
+	if (req.user && req.user.isAdmin) {
+		// if yes, then allow passage
+		next();
+	} else {
+		// if no, then
+		res.status(400);
+		throw new Error("User not authorized");
+	}
+};
+
+export { protect, isProvider, admin };

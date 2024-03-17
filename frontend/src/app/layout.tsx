@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Inter, Kanit, Nova_Square } from "next/font/google";
 import "./globals.css";
-// layouts
+
 import Navbar from "@/layout/Navbar";
 import MobileNav from "@/layout/MobileLayout/MobileNav";
 import Footer from "@/layout/Footer";
+import { Providers } from "@/redux/provider";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -38,12 +39,13 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={`${inter.variable} ${kanit.variable} ${nova.variable}`}>
-				<Navbar />
-				{children}
-				<MobileNav />
-				<Footer />
-			</body>
+			<Providers>
+				<body
+					className={`${inter.variable} ${kanit.variable} ${nova.variable}`}
+				>
+					{children}
+				</body>
+			</Providers>
 		</html>
 	);
 }

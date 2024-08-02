@@ -32,9 +32,12 @@ const Navbar = () => {
 			</div>
 			<div className="hidden items-center gap-8 lg:flex">
 				<DarkLightMode />
-				<button className="bg-blue text-light text-sm rounded-3xl px-4 py-2 font-inter font-medium duration-500 hover:bg-darkBlue">
+				<Link
+					href="/register"
+					className="bg-blue text-light text-sm rounded-3xl px-4 py-2 font-inter font-medium duration-500 hover:bg-darkBlue"
+				>
 					Sign Up
-				</button>
+				</Link>
 			</div>
 			<div className="lg:hidden">
 				<DarkLightMode />

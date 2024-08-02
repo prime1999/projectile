@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Kanit, Nova_Square } from "next/font/google";
 import "./globals.css";
 
-import Navbar from "@/layout/Navbar";
-import MobileNav from "@/layout/MobileLayout/MobileNav";
-import Footer from "@/layout/Footer";
 import { Providers } from "@/redux/provider";
 
 const inter = Inter({

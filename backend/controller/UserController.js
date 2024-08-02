@@ -33,15 +33,15 @@ const registerUser = asyncHandler(async (req, res) => {
 		const transporter = nodemailer.createTransport({
 			service: "Gmail",
 			auth: {
-				user: "moshoodolabanji22@gmail.com", // Your Gmail email address
-				pass: "rdwv pawg frpm grcj", // Your Gmail password
+				user: process.env.APP_MAIL, // app email address
+				pass: process.env.APP_PASSWORD, // app email password
 			},
 			tls: {
-				rejectUnauthorized: false,
+				rejectUnauthorized: false, // allow access from any domain
 			},
 		});
 		let mailDetails = {
-			from: "moshoodolabanji22@gmail.com",
+			from: process.env.APP_MAIL,
 			to: email,
 			subject: "Test mail",
 			text: `Your verification code is ${code}`,
@@ -52,6 +52,9 @@ const registerUser = asyncHandler(async (req, res) => {
 				console.error("Error sending email:", err);
 			} else {
 				res.status(200).json({
+					username,
+					email,
+					userType,
 					message: "Email sent successfully",
 				});
 			}

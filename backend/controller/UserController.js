@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import asyncHandler from "../middleware/asyncMiddleware.js";
 import generateToken from "../utils/generateToken.js";
 import nodemailer from "nodemailer";
+import UserProfile from "../models/UserProfile.js";
 
 // init code
 let code = "";
@@ -21,14 +22,13 @@ const registerUser = asyncHandler(async (req, res) => {
 		const sameUserName = await User.find({ username: username });
 		const sameEmail = await User.find({ email: email });
 		console.log({ sameUserName, sameEmail });
-		console.log(0);
 		// check if the username and email has not been used
 		if (sameUserName.length !== 0 || sameEmail.length !== 0) {
 			throw new Error("please choose a unique username and email");
 		}
 		console.log(req.body);
 		// send the verification code
-		generateRandomCode(8);
+		generateRandomCode(6);
 		// Create Nodemailer transporter with Gmail SMTP settings
 		const transporter = nodemailer.createTransport({
 			service: "Gmail",
@@ -43,7 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
 		let mailDetails = {
 			from: process.env.APP_MAIL,
 			to: email,
-			subject: "Test mail",
+			subject: "Verification Mail from PROJECTILE",
 			text: `Your verification code is ${code}`,
 		};
 		// send the mail with verification code to the user
@@ -73,31 +73,44 @@ const verifyCode = asyncHandler(async (req, res) => {
 		// check if te code is the same as the one sent
 		console.log({ code, verificationCode });
 		if (code === verificationCode) {
-			res.status(200).json({
-				message: "verification successful",
-			});
+			// create the users detail
+			const userData = {
+				username,
+				email,
+				password,
+				userType,
+			};
+			// create the user in the DB
+			const user = await User.create(userData);
+
+			// if the user was created then
+			if (user) {
+				// generate a token here
+				generateToken(res, user._id);
+				// create a rofile for the user
+				const profile = await UserProfile.create({
+					user: user._id,
+					email,
+					isEmailVerified: true,
+					userType,
+				});
+				if (profile) {
+					// get the user from the database
+					const userExist = await User.findById(user._id);
+					userExist.profile = profile._id;
+					// Save the updated user
+					await userExist.save();
+				}
+				// send the user details to the frontend
+				res.status(201).json({
+					username: user?.username,
+					email: user.email,
+					userType: user.userType,
+					profile: profile._id,
+				});
+			}
 		} else {
-			throw new Error("Incorrect code, please try again");
-		}
-		// create the users detail
-		const userData = {
-			username,
-			email,
-			password,
-			userType,
-		};
-		// create the user in the DB
-		const user = await User.create(userData);
-		// if the user was created then
-		if (user) {
-			// generate a token here
-			generateToken(res, user._id);
-			// send the user details to the frontend
-			res.status(201).json({
-				username: user?.username,
-				email: user.email,
-				userType: user.userType,
-			});
+			throw new Error("Invalid code");
 		}
 	} catch (error) {
 		// if an error occured in the try block, then

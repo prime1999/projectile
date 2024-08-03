@@ -154,11 +154,11 @@ const page = () => {
 									</FormItem>
 								)}
 							/>
-							<p className="text-xs text-gray-300">
+							<p className="text-xs text-darkBlue">
 								Must be ateast 8 characters
 							</p>
 						</div>
-						<p className="font-inter text-sm text-gray-300 mt-4">
+						<p className="font-inter text-sm text-darkBlue font-medium mt-4">
 							Select Account type
 						</p>
 						<div className="w-full flex gap-4 items-center justify-between">
@@ -221,12 +221,12 @@ const page = () => {
 				</div>
 
 				<div className="flex items-center justify-center gap-2 mt-2">
-					<p className="text-sm text-gray-300 font-inter font-semibold">
+					<p className="text-sm text-darkBlue font-inter font-semibold">
 						Already have an Account?
 					</p>
 					<Link
 						href="/logIn"
-						className="flex justify-center font-kanit text-sm text-center text-slate-500 duration-500 hover:text-slate-700"
+						className="flex justify-center font-kanit text-md font-bold text-center text-slate-500 duration-500 hover:text-slate-700"
 					>
 						Log-In
 					</Link>

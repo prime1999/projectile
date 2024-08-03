@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import UserProfile from "./UserProfile.js";
 
 const userSchema = new mongoose.Schema(
 	{
@@ -24,31 +25,9 @@ const userSchema = new mongoose.Schema(
 			default: "client",
 		},
 		profile: {
-			firstName: String,
-			lastName: String,
-			avatar: {
-				type: String,
-				default:
-					"https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
-			},
-			bio: String,
-			contactInfo: {
-				phone: String,
-				address: String,
-				city: String,
-				country: String,
-				zipCode: String,
-			},
-			skills: [String],
-			experience: String,
-			education: String,
+			type: mongoose.Schema.Types.ObjectId,
+			ref: UserProfile,
 		},
-		projects: [
-			{
-				type: mongoose.Schema.Types.ObjectId,
-				ref: "Project",
-			},
-		],
 	},
 	{ timestamps: true }
 );
@@ -57,7 +36,7 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 	return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// function to hash passwords before savin them to the DB
+// function to hash passwords before saving them to the DB
 userSchema.pre("save", async function (next) {
 	if (!this.isModified("password")) {
 		next();

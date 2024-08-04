@@ -7,7 +7,8 @@ const store = configureStore({
 		[apiSlice.reducerPath]: apiSlice.reducer,
 		auth: AuthSliceReducer,
 	},
-	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(),
+	middleware: (getDefaultMiddleware) =>
+		getDefaultMiddleware().concat(apiSlice.middleware),
 	devTools: true,
 });
 

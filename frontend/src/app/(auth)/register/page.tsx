@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 // next hooks
 import Image from "next/image";
 import Link from "next/link";
@@ -19,9 +20,13 @@ import {
 	FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+// redux components
+import { useRegisterUserMutation } from "@/redux/slices/UserSlice";
 // components
 import Logo from "@/utils/Logo";
+import EmailVerificationModal from "@/components/modals/EmailVerificationModal";
 
 // form schema
 const formSchema = z.object({
@@ -37,13 +42,19 @@ const formSchema = z.object({
 		.string()
 		.min(8, { message: "Password must be at least 8 characters long" })
 		.max(20, { message: "Password must be at most 20 characters long" }),
-	isClient: z.boolean(),
-	isServiceProvider: z.boolean(),
+
+	accountType: z.string(),
 });
 
 const page = () => {
 	// init shadcn toast
 	const { toast } = useToast();
+	// for the auth slice
+	const [register, { isLoading }] = useRegisterUserMutation();
+	// state for opening the modal
+	const [isOpen, setIsOpen] = useState<boolean>(false);
+	// state for the user data
+	const [userData, setUserData] = useState<any>(null);
 	const {
 		handleSubmit,
 		control,
@@ -57,8 +68,7 @@ const page = () => {
 			username: "",
 			email: "",
 			password: "",
-			isClient: false,
-			isServiceProvider: false,
+			accountType: "",
 		},
 	});
 
@@ -81,13 +91,36 @@ const page = () => {
 	};
 
 	//  function to handle the submission of the form
-	function onSubmit(values: z.infer<typeof formSchema>) {
+	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		// Do something with the form values.
 
 		// ✅ This will be type-safe and validated.
 		console.log(123);
 		console.log(values);
-	}
+		// checkc if the user has chosen an acc type
+		if (values.accountType === "") {
+			toast({
+				variant: "destructive",
+				title: "Please select an account type",
+			});
+		} else {
+			const userData: {
+				username: String;
+				email: String;
+				password: String;
+				userType: String;
+			} = {
+				username: values.username,
+				email: values.email,
+				password: values.password,
+				userType: values.accountType,
+			};
+			const res = await register(userData).unwrap();
+			setIsOpen(true);
+			setUserData(userData);
+			console.log(res);
+		}
+	};
 	return (
 		<div className="w-[400px] m-4 flex flex-col items-center justify-between gap-8 rounded-lg bg-white shadow-lg px-4 pt-2">
 			<div className="flex flex-col items-center justify-between">
@@ -164,37 +197,51 @@ const page = () => {
 						<div className="w-full flex gap-4 items-center justify-between">
 							<FormField
 								control={form.control}
-								name="isClient"
+								name="accountType"
 								render={({ field }) => (
 									<FormItem className="flex items-center gap-4">
 										<FormControl>
-											<Checkbox
-												checked={field.value}
-												onCheckedChange={field.onChange}
-												className="hidden"
-											/>
+											<RadioGroup
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+												className="flex items-center justify-between"
+											>
+												<FormItem>
+													<FormControl>
+														<RadioGroupItem
+															value="isClient"
+															className="hidden"
+														/>
+													</FormControl>
+													<FormLabel
+														className={`${
+															field.value === "isClient"
+																? "bg-red hover:text-white"
+																: "bg-white hover:text-red"
+														} font-inter text-xs text-gray-800 px-12 py-2 rounded-md border border-gray-200 cursor-pointer duration-500 hover:border-red`}
+													>
+														Employer
+													</FormLabel>
+												</FormItem>
+												<FormItem className="flex items-center gap-4">
+													<FormControl>
+														<RadioGroupItem
+															value="isServiceProvider"
+															className="hidden"
+														/>
+													</FormControl>
+													<FormLabel
+														className={`${
+															field.value === "isServiceProvider"
+																? "bg-red hover:text-white"
+																: "bg-white hover:text-red"
+														} font-inter text-xs text-gray-800 px-12 py-2 rounded-md border border-gray-200 cursor-pointer duration-500 hover:border-red`}
+													>
+														Employee
+													</FormLabel>
+												</FormItem>
+											</RadioGroup>
 										</FormControl>
-										<FormLabel className="font-inter text-xs text-gray-800 px-12 py-2 rounded-md border border-gray-200 cursor-pointer hover:border-red hover:text-red">
-											Employer
-										</FormLabel>
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="isServiceProvider"
-								render={({ field }) => (
-									<FormItem className="flex items-center gap-4">
-										<FormControl>
-											<Checkbox
-												checked={field.value}
-												onCheckedChange={field.onChange}
-												className="hidden"
-											/>
-										</FormControl>
-										<FormLabel className="font-inter text-xs text-gray-800 px-12 py-2 rounded-md border border-gray-200 cursor-pointer hover:border-red hover:text-red">
-											Employee
-										</FormLabel>
 									</FormItem>
 								)}
 							/>
@@ -205,12 +252,34 @@ const page = () => {
 							<p className="font-inter text-gray-500 mx-2">Or Register with</p>
 							<hr className="border border-gray-300 w-1/4" />
 						</div>
+						{/* {isOpen ? (
+							<EmailVerificationModal data={userData}>
+								<button
+									type="submit"
+									className="w-full text-center bg-darkBlue font-inter font-medium text-white text-sm rounded-full py-2 duration-500 hover:bg-cyan-800"
+								>
+									Submit
+								</button>
+							</EmailVerificationModal>
+						) : (
+							<button
+								type="submit"
+								className="w-full text-center bg-darkBlue font-inter font-medium text-white text-sm rounded-full py-2 duration-500 hover:bg-cyan-800"
+							>
+								Submit
+							</button>
+						)} */}
 						<button
 							type="submit"
 							className="w-full text-center bg-darkBlue font-inter font-medium text-white text-sm rounded-full py-2 duration-500 hover:bg-cyan-800"
 						>
 							Submit
 						</button>
+						<EmailVerificationModal
+							data={userData}
+							isOpen={isOpen}
+							setIsOpen={setIsOpen}
+						/>
 					</form>
 				</Form>
 				<div className="my-2">

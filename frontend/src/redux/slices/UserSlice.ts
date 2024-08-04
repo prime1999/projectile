@@ -13,6 +13,14 @@ export const UserApiSlice = apiSlice.injectEndpoints({
 				body: userData,
 			}),
 		}),
+		// use the mutate on the function (for handling data changes)
+		verifyEmail: builder.mutation<any, any>({
+			query: (verificationData) => ({
+				url: `${USERS_URL}/verifyCode`,
+				method: "POST",
+				body: verificationData,
+			}),
+		}),
 		logUserIn: builder.mutation<UserLogInType, any>({
 			query: (logInData) => ({
 				url: `${USERS_URL}/authUser`,
@@ -26,6 +34,9 @@ export const UserApiSlice = apiSlice.injectEndpoints({
 //
 export const useRegisterUserMutation =
 	UserApiSlice.endpoints.registerUser.useMutation;
+//
+export const useVerifyEmailMutation =
+	UserApiSlice.endpoints.verifyEmail.useMutation;
 //
 export const useLogUserInMutation =
 	UserApiSlice.endpoints.logUserIn.useMutation;

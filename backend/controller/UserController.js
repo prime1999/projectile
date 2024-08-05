@@ -114,7 +114,10 @@ const verifyCode = asyncHandler(async (req, res) => {
 		}
 	} catch (error) {
 		// if an error occured in the try block, then
-		res.status(400);
+		res.status(200).json({
+			status: "error",
+			message: error.message,
+		});
 		throw new Error(error.message);
 	}
 });
@@ -145,6 +148,9 @@ const authUser = asyncHandler(async (req, res) => {
 		}
 	} catch (error) {
 		// if an error occured in the try block, then
+		res.status(200).json({
+			status: 400,
+		});
 		res.status(400);
 		throw new Error(error.message);
 	}
@@ -176,6 +182,7 @@ const logUserOut = asyncHandler(async (req, res) => {
 
 // ------------------------------- function to generate code -------------------------------- //
 const generateRandomCode = (length) => {
+	let newCode = "";
 	// Define the characters from which to generate the code
 	const charset = "0123456789";
 	// Loop through the specified length and append a random character from the charset to the code
@@ -183,8 +190,10 @@ const generateRandomCode = (length) => {
 		// Generate a random index
 		const randomIndex = Math.floor(Math.random() * charset.length);
 		// Append the character at the random index to the code
-		code += charset[randomIndex];
+		newCode += charset[randomIndex];
 	}
+
+	code = newCode;
 
 	return code;
 };

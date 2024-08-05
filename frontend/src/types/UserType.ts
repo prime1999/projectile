@@ -38,4 +38,6 @@ export interface UserType {
 export interface UserLogInType {
 	email: string;
 	password: string;
+	status?: any;
+	message?: String;
 }

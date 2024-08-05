@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+// redux hook
+import { useDispatch } from "react-redux";
 // next hooks
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 // react-hook-for | zod
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,37 +22,30 @@ import {
 	FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
+// user redux splice function
+import { setCredentials } from "@/redux/slices/AuthSlice";
 // redux components
-import { useRegisterUserMutation } from "@/redux/slices/UserSlice";
+import { useLogUserInMutation } from "@/redux/slices/UserSlice";
 // components
 import Logo from "@/utils/Logo";
-import EmailVerificationModal from "@/components/modals/EmailVerificationModal";
 
 // form schema
 const formSchema = z.object({
-	username: z
-		.string()
-		.min(2, { message: "Username must be at least 2 characters long" })
-		.max(50, { message: "Username must be at most 50 characters long" }),
-
 	email: z.string().email({
 		message: "Please enter a valid email",
 	}),
-	password: z
-		.string()
-		.min(8, { message: "Password must be at least 8 characters long" })
-		.max(20, { message: "Password must be at most 20 characters long" }),
-
-	accountType: z.string(),
+	password: z.string(),
 });
 
 const page = () => {
+	// init the next hook
+	const router = useRouter();
+	// init the useDispatch hook
+	const dispatch = useDispatch();
 	// init shadcn toast
 	const { toast } = useToast();
 	// for the auth slice
-	const [register, { isLoading }] = useRegisterUserMutation();
+	const [logIn, { isLoading }] = useLogUserInMutation();
 	// state for opening the modal
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	// state for the user data
@@ -64,10 +60,8 @@ const page = () => {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			username: "",
 			email: "",
 			password: "",
-			accountType: "",
 		},
 	});
 
@@ -91,33 +85,33 @@ const page = () => {
 
 	//  function to handle the submission of the form
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
-		// Do something with the form values.
-
-		// ✅ This will be type-safe and validated.
 		console.log(123);
 		console.log(values);
-		// checkc if the user has chosen an acc type
-		if (values.accountType === "") {
+		// check if the user has chosen an acc type
+		if (values.password === "") {
 			toast({
 				variant: "destructive",
-				title: "Please select an account type",
+				title: "Invalid password",
 			});
 		} else {
 			const userData: {
-				username: String;
 				email: String;
 				password: String;
-				userType: String;
 			} = {
-				username: values.username,
 				email: values.email,
 				password: values.password,
-				userType: values.accountType,
 			};
-			const res = await register(userData).unwrap();
-			setIsOpen(true);
-			setUserData(userData);
-			console.log(res);
+			const res = await logIn(userData).unwrap();
+			if (res.status) {
+				toast({
+					variant: "destructive",
+					title: "Invalid user data",
+				});
+			} else {
+				dispatch(setCredentials({ ...res }));
+				router.push("/dashboard");
+				console.log(res);
+			}
 		}
 	};
 	return (
@@ -125,7 +119,7 @@ const page = () => {
 			<div className="flex flex-col items-center justify-between">
 				<Logo />
 				<h3 className="font-kanit text-darkBlue text-sm text-center font-medium my-2">
-					Register to create your first account
+					SIgn In to continue
 				</h3>
 			</div>
 			<div>
@@ -134,23 +128,6 @@ const page = () => {
 						onSubmit={form.handleSubmit(onSubmit, onError)}
 						className="-mt-12"
 					>
-						<div className="mt-2">
-							<FormField
-								control={form.control}
-								name="username"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel className="text-darkBlue">Username</FormLabel>
-										<FormControl>
-											<Input
-												{...field}
-												className="bg-transparent text-darkBlue border border-darkBlue focus:outline-none focus:border-gray-300 focus:outline-2 focus:bg-transparent"
-											/>
-										</FormControl>
-									</FormItem>
-								)}
-							/>
-						</div>
 						<div className="mt-2">
 							<FormField
 								control={form.control}
@@ -174,72 +151,12 @@ const page = () => {
 								name="password"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className="text-darkBlue">
-											Create Password
-										</FormLabel>
+										<FormLabel className="text-darkBlue">Password</FormLabel>
 										<FormControl>
 											<Input
 												{...field}
 												className="bg-transparent text-darkBlue border border-darkBlue focus:outline-none focus:border-gray-300 focus:outline-2 focus:bg-transparent"
 											/>
-										</FormControl>
-									</FormItem>
-								)}
-							/>
-							<p className="text-xs text-darkBlue">
-								Must be ateast 8 characters
-							</p>
-						</div>
-						<p className="font-inter text-sm text-darkBlue font-medium mt-4">
-							Select Account type
-						</p>
-						<div className="w-full flex gap-4 items-center justify-between">
-							<FormField
-								control={form.control}
-								name="accountType"
-								render={({ field }) => (
-									<FormItem className="flex items-center gap-4">
-										<FormControl>
-											<RadioGroup
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-												className="flex items-center justify-between"
-											>
-												<FormItem>
-													<FormControl>
-														<RadioGroupItem
-															value="isClient"
-															className="hidden"
-														/>
-													</FormControl>
-													<FormLabel
-														className={`${
-															field.value === "isClient"
-																? "bg-red hover:text-white"
-																: "bg-white hover:text-red"
-														} font-inter text-xs text-gray-800 px-12 py-2 rounded-md border border-gray-200 cursor-pointer duration-500 hover:border-red`}
-													>
-														Employer
-													</FormLabel>
-												</FormItem>
-												<FormItem className="flex items-center gap-4">
-													<FormControl>
-														<RadioGroupItem
-															value="isServiceProvider"
-															className="hidden"
-														/>
-													</FormControl>
-													<FormLabel
-														className={`${
-															field.value === "isServiceProvider"
-																? "bg-red hover:text-white"
-																: "bg-white hover:text-red"
-														} font-inter text-xs text-gray-800 px-12 py-2 rounded-md border border-gray-200 cursor-pointer duration-500 hover:border-red`}
-													>
-														Employee
-													</FormLabel>
-												</FormItem>
-											</RadioGroup>
 										</FormControl>
 									</FormItem>
 								)}
@@ -253,50 +170,27 @@ const page = () => {
 						</button>
 						<div className="flex gap-2 items-center justify-center text-xs my-2">
 							<hr className="border border-gray-300 w-1/4" />
-							<p className="font-inter text-gray-500 mx-2">Or Register with</p>
+							<p className="font-inter text-gray-500 mx-2">Or Sign In with</p>
 							<hr className="border border-gray-300 w-1/4" />
 						</div>
-						{/* {isOpen ? (
-							<EmailVerificationModal data={userData}>
-								<button
-									type="submit"
-									className="w-full text-center bg-darkBlue font-inter font-medium text-white text-sm rounded-full py-2 duration-500 hover:bg-cyan-800"
-								>
-									Submit
-								</button>
-							</EmailVerificationModal>
-						) : (
-							<button
-								type="submit"
-								className="w-full text-center bg-darkBlue font-inter font-medium text-white text-sm rounded-full py-2 duration-500 hover:bg-cyan-800"
-							>
-								Submit
-							</button>
-						)} */}
-
-						<EmailVerificationModal
-							data={userData}
-							isOpen={isOpen}
-							setIsOpen={setIsOpen}
-						/>
 					</form>
 				</Form>
 				<div className="my-2">
 					<button className="w-full mt-4 border border-red text-red rounded-full py-2 flex items-center justify-center gap-4 text-center font-inter text-sm font-medium duration-500 hover:bg-red hover:text-white">
 						<FaGoogle />
-						<span>Sign in with Google</span>
+						<span>Log in with Google</span>
 					</button>
 				</div>
 
 				<div className="flex items-center justify-center gap-2 mt-2">
 					<p className="text-sm text-darkBlue font-inter font-semibold">
-						Already have an Account?
+						Don't have an Account?
 					</p>
 					<Link
-						href="/logIn"
+						href="/register"
 						className="flex justify-center font-kanit text-md font-bold text-center text-slate-500 duration-500 hover:text-slate-700"
 					>
-						Log-In
+						Register Here
 					</Link>
 				</div>
 			</div>

@@ -6,25 +6,21 @@ const userProfileSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
 		},
-		profile: {
-			firstName: String,
-			lastName: String,
-			avatar: {
-				type: String,
-				default:
-					"https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
-			},
-			bio: String,
-			contactInfo: {
-				phone: String,
-				address: String,
-				city: String,
-				country: String,
-				zipCode: String,
-			},
-			skills: [String],
-			experience: String,
-			education: String,
+
+		firstName: String,
+		lastName: String,
+		avatar: {
+			type: String,
+			default:
+				"https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+		},
+		bio: String,
+		skills: [String],
+		experience: {
+			name: String,
+			description: String,
+			position: String,
+			skillsUsed: [String],
 		},
 		projects: [
 			{
@@ -33,7 +29,7 @@ const userProfileSchema = new mongoose.Schema(
 			},
 		],
 		userType: String,
-		Email: String,
+		email: String,
 		isEmailVerified: {
 			type: Boolean,
 			default: false,

@@ -163,9 +163,13 @@ const page = () => {
 							/>
 						</div>
 						<button
+							disabled={isLoading}
 							type="submit"
-							className="w-full mt-4 text-center bg-darkBlue font-inter font-medium text-white text-sm rounded-full py-2 duration-500 hover:bg-cyan-800"
+							className={`w-full flex gap-4 items-center justify-center mt-4 text-center ${
+								isLoading ? "bg-blue" : "bg-darkBlue hover:bg-cyan-800"
+							} font-inter font-medium text-white text-sm rounded-full py-2 duration-500`}
 						>
+							{isLoading && <span className="loader"></span>}
 							Submit
 						</button>
 						<div className="flex gap-2 items-center justify-center text-xs my-2">

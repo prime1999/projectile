@@ -11,6 +11,9 @@
     "client": "npm run dev --prefix frontend",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "data:import": "node backend/seeder.js",
+    "profileData:import": "node backend/seeder.js -p",
+    "projectData:import": "node backend/seeder.js -w",
+    "taskData:import": "node backend/seeder.js -t",
     "data:destroy": "node backend/seeder.js -d"
   },
   "author": "prime",

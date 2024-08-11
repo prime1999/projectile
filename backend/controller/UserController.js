@@ -48,8 +48,13 @@ const registerUser = asyncHandler(async (req, res) => {
 		};
 		// send the mail with verification code to the user
 		transporter.sendMail(mailDetails, function (err, data) {
+			console.log(data);
 			if (err) {
 				console.error("Error sending email:", err);
+				res.status(200).json({
+					status: "error",
+					message: err.message,
+				});
 			} else {
 				res.status(200).json({
 					username,

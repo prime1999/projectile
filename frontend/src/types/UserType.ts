@@ -33,6 +33,8 @@ export interface UserType {
 	username: string;
 	email: string;
 	password: string;
+	status: String;
+	message: string;
 }
 
 export interface UserLogInType {

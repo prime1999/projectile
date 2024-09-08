@@ -14,6 +14,7 @@
     "profileData:import": "node backend/seeder.js -p",
     "projectData:import": "node backend/seeder.js -w",
     "taskData:import": "node backend/seeder.js -t",
+    "scheduleData:import": "node backend/seeder.js -s",
     "data:destroy": "node backend/seeder.js -d"
   },
   "author": "prime",

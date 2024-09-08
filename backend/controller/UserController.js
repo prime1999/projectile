@@ -92,7 +92,7 @@ const verifyCode = asyncHandler(async (req, res) => {
 			if (user) {
 				// generate a token here
 				generateToken(res, user._id);
-				// create a rofile for the user
+				// create a profile for the user
 				const profile = await UserProfile.create({
 					user: user._id,
 					email,
@@ -112,6 +112,7 @@ const verifyCode = asyncHandler(async (req, res) => {
 					email: user.email,
 					userType: user.userType,
 					profile: profile._id,
+					pic: user.pic,
 				});
 			}
 		} else {
@@ -144,9 +145,10 @@ const authUser = asyncHandler(async (req, res) => {
 			generateToken(res, user._id);
 			// send the details to te frontend
 			res.status(200).json({
-				username: user.username,
+				username: user?.username,
 				email: user.email,
 				userType: user.userType,
+				pic: user.pic,
 			});
 		} else {
 			throw new Error("user not found");

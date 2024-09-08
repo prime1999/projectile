@@ -36,7 +36,12 @@ const projectSchema = new mongoose.Schema(
 				},
 			},
 		],
-		tasks: [String],
+		tasks: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Task",
+			},
+		],
 		team: [
 			{
 				type: mongoose.Schema.Types.ObjectId,

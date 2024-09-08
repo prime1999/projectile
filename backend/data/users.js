@@ -7,6 +7,7 @@ const users = [
 		password: "abc123",
 		userType: "client",
 		profile: "1",
+		pic: "",
 	},
 ];
 

@@ -4,11 +4,13 @@ import users from "./data/users.js";
 import connectDB from "./config/db.js";
 import User from "./models/userModel.js";
 import UserProfile from "./models/UserProfile.js";
-import userProfile from "./data/userProfile.js";
 import Project from "./models/ProjectModel.js";
-import projects from "./data/projects.js";
 import Task from "./models/taskModel.js";
+import Schedule from "./models/ScheduleModel.js";
+import userProfile from "./data/userProfile.js";
+import projects from "./data/projects.js";
 import tasks from "./data/tasks.js";
+import schedules from "./data/Schedule.js";
 dotenv.config();
 
 connectDB();
@@ -92,6 +94,22 @@ const importTask = async () => {
 	}
 };
 
+// function to create a fake schedules data
+const importSchedule = async () => {
+	try {
+		// delete the existing schedules data
+		await Schedule.deleteMany();
+		// insert new schedules data
+		await Schedule.insertMany(schedules);
+		// exit out of the function
+		process.exit();
+	} catch (error) {
+		// if an error occured in the try block then
+		console.log(`${error}`.red.inverse);
+		process.exit(1);
+	}
+};
+
 // when calling the functions in the panel, check if there is a second argument of "-d".
 if (process.argv[2] === "-d") {
 	// if there is then
@@ -102,6 +120,8 @@ if (process.argv[2] === "-d") {
 	importProjects();
 } else if (process.argv[2] === "-t") {
 	importTask();
+} else if (process.argv[2] === "-s") {
+	importSchedule();
 } else {
 	// if there isn't then
 	importUserData();

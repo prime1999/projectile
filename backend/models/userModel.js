@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema(
 			required: true,
 			unique: true,
 		},
+		pic: {
+			type: String,
+			default:
+				"https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+		},
 		password: {
 			type: String,
 			required: true,

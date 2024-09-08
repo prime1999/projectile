@@ -5,7 +5,9 @@ const Schema = mongoose.Schema;
 const ScheduleSchema = new Schema(
 	{
 		project_id: {
-			type: String,
+			type: mongoose.Schema.Types.ObjectId, // Reference to the Project model
+			ref: "Project",
+			required: true,
 		},
 		title: {
 			type: String,
@@ -27,7 +29,12 @@ const ScheduleSchema = new Schema(
 			type: String, // Physical or virtual location (e.g., "Zoom", "Google Meet", etc.)
 			required: true,
 		},
-		attendees: [String], // Array of attendees
+		attendees: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "User",
+			},
+		], // Array of attendees
 	},
 	{ timestamps: true }
 );

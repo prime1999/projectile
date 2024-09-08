@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 import userRouter from "./router/UserRoutes.js";
+import taskRouter from "./router/TaskRoute.js";
 dotenv.config();
 
 const port = process.env.PORT || 5000;
@@ -26,6 +27,7 @@ app.use(cookieParser());
 
 // routes
 app.use("/api/user", userRouter);
+app.use("/api/tasks", taskRouter);
 
 // error middleware
 app.use(notFound);

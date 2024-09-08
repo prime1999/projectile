@@ -13,7 +13,7 @@ const projects = [
 				employee_id: "66b7f78458e9c06046dbb1d9",
 			},
 		],
-		tasks: [],
+		tasks: ["66dd572cfb2f465f6b5211d5", "66dd572cfb2f465f6b5211d6"],
 		team: ["66b7f78458e9c06046dbb1d9"],
 	},
 ];

@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const ScheduleSchema = new Schema(
 	{
 		project_id: {
-			type: mongoose.Schema.Types.ObjectId, // Reference to the Project model
+			type: mongoose.Schema.Types.ObjectId,
 			ref: "Project",
 			required: true,
 		},
@@ -18,15 +18,16 @@ const ScheduleSchema = new Schema(
 			required: true,
 		},
 		start_time: {
-			type: Date, // Start time of the schedule
+			type: Date,
 			required: true,
 		},
 		end_time: {
-			type: Date, // End time of the schedule
+			type: Date,
 			required: true,
 		},
 		location: {
-			type: String, // Physical or virtual location (e.g., "Zoom", "Google Meet", etc.)
+			type: String,
+			enum: ["zoom", "google-meet", "in-app", "other"],
 			required: true,
 		},
 		attendees: [
@@ -34,7 +35,7 @@ const ScheduleSchema = new Schema(
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "User",
 			},
-		], // Array of attendees
+		],
 	},
 	{ timestamps: true }
 );

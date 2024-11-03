@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
 // next hooks
 import Link from "next/link";
 // react-hook-for | zod
@@ -20,19 +22,28 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
-// redux components
-import { useRegisterUserMutation } from "@/redux/slices/UserSlice";
 // components
 import Logo from "@/utils/Logo";
-import EmailVerificationModal from "@/components/modals/EmailVerificationModal";
+// import EmailVerificationModal from "@/components/modals/EmailVerificationModal";
+import { useCreateAccount } from "@/lib/react-query/config";
+import { UserAccountType } from "@/types/UserType";
+import { signInAccount } from "@/lib/appwrite/api";
+import { currentUser } from "@/lib/redux/AuthStore";
+import { AppDispatch } from "@/lib/redux/store";
 
 // form schema
 const formSchema = z.object({
 	username: z
 		.string()
 		.min(2, { message: "Username must be at least 2 characters long" })
-		.max(50, { message: "Username must be at most 50 characters long" }),
+		.max(15, { message: "Username must be at most 15 characters long" }),
+	firstname: z
+		.string()
+		.min(2, { message: "Username must be at least 2 characters long" }),
+
+	lastname: z
+		.string()
+		.min(2, { message: "Username must be at least 2 characters long" }),
 
 	email: z.string().email({
 		message: "Please enter a valid email",
@@ -46,14 +57,29 @@ const formSchema = z.object({
 });
 
 const page = () => {
+	// init the next hook
+	const router = useRouter();
 	// init shadcn toast
 	const { toast } = useToast();
-	// for the auth slice
-	const [register, { isLoading }] = useRegisterUserMutation();
 	// state for opening the modal
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	// state for the user data
 	const [userData, setUserData] = useState<any>(null);
+	// Queries
+	const { mutateAsync: createUserAccount } = useCreateAccount();
+	// redux init
+	const { user, isAuthenticated, isLoading } = useSelector(
+		(state: any) => state.auth
+	);
+	const dispatch = useDispatch<AppDispatch>();
+
+	useEffect(() => {
+		if (isAuthenticated === true) {
+			form.reset();
+			router.push("/dashboard");
+		}
+	}, [isAuthenticated]);
+
 	const {
 		handleSubmit,
 		control,
@@ -64,6 +90,8 @@ const page = () => {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
+			firstname: "",
+			lastname: "",
 			username: "",
 			email: "",
 			password: "",
@@ -91,48 +119,64 @@ const page = () => {
 
 	//  function to handle the submission of the form
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
-		// Do something with the form values.
-
-		// ✅ This will be type-safe and validated.
-		console.log(123);
-		console.log(values);
-		// checkc if the user has chosen an acc type
-		if (values.accountType === "") {
-			toast({
-				variant: "destructive",
-				title: "Please select an account type",
-			});
-		} else {
-			const userData: {
-				username: String;
-				email: String;
-				password: String;
-				userType: String;
-			} = {
-				username: values.username,
-				email: values.email,
-				password: values.password,
-				userType: values.accountType,
-			};
-			const res = await register(userData).unwrap();
-			if (res.status) {
+		try {
+			// checkc if the user has chosen an acc type
+			if (values.accountType === "") {
 				toast({
 					variant: "destructive",
-					title: res?.message,
+					title: "Please select an account type",
 				});
 			} else {
-				setIsOpen(true);
-				setUserData(userData);
-				console.log(res);
+				const userData: UserAccountType = {
+					name: `${values.firstname} ${values.lastname}`,
+					username: values.username,
+					email: values.email,
+					password: values.password,
+					accountType: values.accountType,
+				};
+				// create new account for the user
+				const newUser: any = await createUserAccount(userData);
+				// check if user was created
+				if (!newUser?.$id) {
+					toast({
+						variant: "destructive",
+						title:
+							"Registration failed, Please check credentials and try again",
+					});
+					return;
+				}
+
+				// sign the user in after creating the user's account
+				const session = await signInAccount({
+					email: values.email,
+					password: values.password,
+				});
+				console.log(session);
+				// check if the user has been logged in
+				if (!session) {
+					toast({
+						variant: "destructive",
+						title: "session failed, Please check credentials and try again",
+					});
+					return;
+				}
+				// dispatch the function to check if the user is registered and signed in, then set the authenticated variable
+				dispatch(currentUser());
 			}
+		} catch (error) {
+			toast({
+				variant: "destructive",
+				title: "Check credentials and try again",
+			});
+			console.log(error);
 		}
 	};
 	return (
-		<div className="w-[400px] m-4 flex flex-col items-center justify-between gap-8 rounded-lg bg-white shadow-lg px-4 pt-2">
-			<div className="flex flex-col items-center justify-between">
+		<div className="w-[400px] m-4 flex flex-col items-center justify-between gap-4 rounded-lg bg-white bg-cover shadow-lg px-4 pt-2 dark:bg-doc">
+			<div className="flex items-center justify-between w-full mb-8">
 				<Logo />
-				<h3 className="font-kanit text-darkBlue text-sm text-center font-medium my-2">
-					Register to create your first account
+				<h3 className="font-kanit text-darkBlue text-md text-center font-medium">
+					Create Account
 				</h3>
 			</div>
 			<div>
@@ -141,6 +185,44 @@ const page = () => {
 						onSubmit={form.handleSubmit(onSubmit, onError)}
 						className="-mt-12"
 					>
+						<div className="flex items-center justify-between gap-4">
+							<div className="mt-2">
+								<FormField
+									control={form.control}
+									name="firstname"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel className="text-darkBlue">
+												First-name
+											</FormLabel>
+											<FormControl>
+												<Input
+													{...field}
+													className="bg-transparent text-darkBlue border border-darkBlue focus:outline-none focus:border-gray-300 focus:outline-2 focus:bg-transparent"
+												/>
+											</FormControl>
+										</FormItem>
+									)}
+								/>
+							</div>
+							<div className="mt-2">
+								<FormField
+									control={form.control}
+									name="lastname"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel className="text-darkBlue">Last-name</FormLabel>
+											<FormControl>
+												<Input
+													{...field}
+													className="bg-transparent text-darkBlue border border-darkBlue focus:outline-none focus:border-gray-300 focus:outline-2 focus:bg-transparent"
+												/>
+											</FormControl>
+										</FormItem>
+									)}
+								/>
+							</div>
+						</div>
 						<div className="mt-2">
 							<FormField
 								control={form.control}
@@ -197,10 +279,7 @@ const page = () => {
 								Must be ateast 8 characters
 							</p>
 						</div>
-						<p className="font-inter text-sm text-darkBlue font-medium mt-4">
-							Select Account type
-						</p>
-						<div className="w-full flex gap-4 items-center justify-between">
+						<div className="w-full mt-2 flex gap-4 items-center justify-center">
 							<FormField
 								control={form.control}
 								name="accountType"
@@ -222,7 +301,7 @@ const page = () => {
 													<FormLabel
 														className={`${
 															field.value === "isClient"
-																? "bg-red hover:text-white"
+																? "bg-red hover:text-white dark:text-white"
 																: "bg-white hover:text-red"
 														} font-inter text-xs text-gray-800 px-12 py-2 rounded-md border border-gray-200 cursor-pointer duration-500 hover:border-red`}
 													>
@@ -239,7 +318,7 @@ const page = () => {
 													<FormLabel
 														className={`${
 															field.value === "isServiceProvider"
-																? "bg-red hover:text-white"
+																? "bg-red hover:text-white dark:text-white"
 																: "bg-white hover:text-red"
 														} font-inter text-xs text-gray-800 px-12 py-2 rounded-md border border-gray-200 cursor-pointer duration-500 hover:border-red`}
 													>
@@ -252,7 +331,7 @@ const page = () => {
 								)}
 							/>
 						</div>
-						<button
+						{/* <button
 							disabled={isLoading}
 							type="submit"
 							className={`w-full flex gap-4 items-center justify-center mt-4 text-center ${
@@ -261,8 +340,15 @@ const page = () => {
 						>
 							{isLoading && <span className="loader"></span>}
 							Submit
+						</button> */}
+						<button
+							// disabled={isLoading}
+							type="submit"
+							className={`w-full flex gap-4 items-center justify-center mt-4 text-center bg-darkBlue hover:bg-cyan-800" font-inter font-medium text-white text-sm rounded-full py-2 duration-500`}
+						>
+							Submit
 						</button>
-						<div className="flex gap-2 items-center justify-center text-xs my-2">
+						<div className="flex gap-2 items-center justify-center text-xs mb-2 mt-4">
 							<hr className="border border-gray-300 w-1/4" />
 							<p className="font-inter text-gray-500 mx-2">Or Register with</p>
 							<hr className="border border-gray-300 w-1/4" />
@@ -285,15 +371,15 @@ const page = () => {
 							</button>
 						)} */}
 
-						<EmailVerificationModal
+						{/* <EmailVerificationModal
 							data={userData}
 							isOpen={isOpen}
 							setIsOpen={setIsOpen}
-						/>
+						/> */}
 					</form>
 				</Form>
 				<div className="my-2">
-					<button className="w-full mt-4 border border-red text-red rounded-full py-2 flex items-center justify-center gap-4 text-center font-inter text-sm font-medium duration-500 hover:bg-red hover:text-white">
+					<button className="w-full mt-4 text-red rounded-full flex items-center justify-center gap-4 text-center font-inter text-sm font-medium duration-500 hover:bg-red hover:text-white">
 						<FaGoogle />
 						<span>Sign in with Google</span>
 					</button>

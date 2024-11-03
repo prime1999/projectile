@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Kanit, Nova_Square } from "next/font/google";
 import "./globals.css";
-
-import { Providers } from "@/redux/provider";
+import { Providers } from "@/lib/redux/Provider";
+import LogInTimeCheck from "@/components/CSRC_components/LogInTimeCheck";
+import ThemeProvider from "@/components/CSRC_components/ThemeProvider";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -40,6 +41,8 @@ export default function RootLayout({
 				<body
 					className={`${inter.variable} ${kanit.variable} ${nova.variable}`}
 				>
+					<ThemeProvider />
+					<LogInTimeCheck />
 					{children}
 				</body>
 			</Providers>

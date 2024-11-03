@@ -34,7 +34,7 @@ const Navbar = () => {
 				<DarkLightMode />
 				<Link
 					href="/register"
-					className="bg-blue text-light text-sm rounded-3xl px-4 py-2 font-inter font-medium duration-500 hover:bg-darkBlue"
+					className="bg-blue-100 text-light text-sm rounded-3xl px-4 py-2 font-inter font-medium duration-500 hover:bg-blue-500"
 				>
 					Sign Up
 				</Link>

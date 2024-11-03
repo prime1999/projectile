@@ -19,8 +19,8 @@ const registerUser = asyncHandler(async (req, res) => {
 			throw new Error("Please fill all fields");
 		}
 		//check if there is a user with the same username or email
-		const sameUserName = await User.find({ username: username });
-		const sameEmail = await User.find({ email: email });
+		const sameUserName = await User.find({ username });
+		const sameEmail = await User.find({ email });
 		console.log({ sameUserName, sameEmail });
 		// check if the username and email has not been used
 		if (sameUserName.length !== 0 || sameEmail.length !== 0) {
@@ -108,6 +108,7 @@ const verifyCode = asyncHandler(async (req, res) => {
 				}
 				// send the user details to the frontend
 				res.status(201).json({
+					_id: user?._id,
 					username: user?.username,
 					email: user.email,
 					userType: user.userType,
@@ -145,6 +146,7 @@ const authUser = asyncHandler(async (req, res) => {
 			generateToken(res, user._id);
 			// send the details to te frontend
 			res.status(200).json({
+				_id: user?._id,
 				username: user?.username,
 				email: user.email,
 				userType: user.userType,

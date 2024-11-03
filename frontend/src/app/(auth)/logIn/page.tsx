@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-// redux hook
-import { useDispatch } from "react-redux";
+import { account, ID } from "@/lib/appwrite/config";
 // next hooks
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,10 +21,6 @@ import {
 	FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-// user redux splice function
-import { setCredentials } from "@/redux/slices/AuthSlice";
-// redux components
-import { useLogUserInMutation } from "@/redux/slices/UserSlice";
 // components
 import Logo from "@/utils/Logo";
 
@@ -40,12 +35,8 @@ const formSchema = z.object({
 const page = () => {
 	// init the next hook
 	const router = useRouter();
-	// init the useDispatch hook
-	const dispatch = useDispatch();
 	// init shadcn toast
 	const { toast } = useToast();
-	// for the auth slice
-	const [logIn, { isLoading }] = useLogUserInMutation();
 	// state for opening the modal
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	// state for the user data
@@ -95,34 +86,42 @@ const page = () => {
 			});
 		} else {
 			const userData: {
-				email: String;
-				password: String;
+				email: string;
+				password: string;
 			} = {
 				email: values.email,
 				password: values.password,
 			};
-			const res = await logIn(userData).unwrap();
-			if (res.status) {
+			try {
+				// const session = await account.getSession("current");
+				// if (session) {
+				// 	console.log(session);
+				// 	await account.deleteSession(session.$id);
+				// }
+				//const res = await logIn(userData).unwrap();
+				const res = await account.createEmailPasswordSession(
+					userData.email,
+					userData.password
+				);
+				console.log(res);
+			} catch (error) {
+				console.log(error);
 				toast({
 					variant: "destructive",
-					title: "Invalid user data",
+					title: "Wrong user credentials",
 				});
-			} else {
-				dispatch(setCredentials({ ...res }));
-				router.push("/dashboard");
-				console.log(res);
 			}
 		}
 	};
 	return (
-		<div className="w-[400px] m-4 flex flex-col items-center justify-between gap-8 rounded-lg bg-white shadow-lg px-4 pt-2">
+		<div className="w-[400px] m-4 flex flex-col items-center justify-between gap-8 rounded-lg bg-white bg-cover shadow-lg px-4 pt-2 dark:bg-doc">
 			<div className="flex flex-col items-center justify-between">
 				<Logo />
 				<h3 className="font-kanit text-darkBlue text-sm text-center font-medium my-2">
-					SIgn In to continue
+					Sign In to continue
 				</h3>
 			</div>
-			<div>
+			<div className="w-11/12">
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(onSubmit, onError)}

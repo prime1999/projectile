@@ -6,7 +6,8 @@ import User from "../models/userModel.js";
 const getAllTasks = asyncHandler(async (req, res) => {
 	try {
 		// get the details of the user requesting the tasks
-		const { userId } = req.body;
+		const { userId } = req.query;
+		console.log(req.query);
 
 		// check if the user exist
 		const userExist = await User.findOne({ _id: userId });
@@ -34,8 +35,8 @@ const getAllTasks = asyncHandler(async (req, res) => {
 // ---------------------------------- function to et tasks of a project ---------------------------- //
 const getProjectTasks = asyncHandler(async (req, res) => {
 	try {
-		// get the details from the request body
-		const { projectId, userId } = req.body;
+		// get the details from the request params
+		const { projectId, userId } = req.params;
 		// check if the user exist
 		const userExist = await User.findOne({ _id: userId });
 

@@ -17,7 +17,7 @@ const SubscribeSection = () => {
 					Get Started
 				</span>
 				<div>
-					<h1 className="w-full mx-auto my-8 font-kanit text-xl text-black text-center font-semibold md:text-xl lg:w-2/3 lg:text-3xl">
+					<h1 className="w-full mx-auto my-8 font-kanit text-xl text-black text-center font-semibold dark:text-white md:text-xl lg:w-2/3 lg:text-3xl">
 						Subscribe to our Newsletter & Get Company News
 					</h1>
 					<div className="relative mx-auto w-72 lg:w-[600px] ">
@@ -27,7 +27,7 @@ const SubscribeSection = () => {
 							className="w-full rounded-full shadow-lg pr-4 pl-12 py-4 focus:outline-none"
 						/>
 						<FaEnvelope className="absolute top-5 left-5 text-darkBlue" />
-						<button className="bg-cyan-400 text-white rounded-full py-2 px-4 mt-4 w-full duration-500 hover:bg-darkBlue lg:mt-0 lg:w-36 lg:absolute lg:top-2 lg:right-3 lg:bg-blue">
+						<button className="bg-blue-400 text-white rounded-full py-2 px-4 mt-4 w-full duration-500 hover:bg-blue-500 lg:mt-0 lg:w-36 lg:absolute lg:top-2 lg:right-3 lg:bg-blue">
 							Subscribe
 						</button>
 					</div>

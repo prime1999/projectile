@@ -6,6 +6,7 @@ import connectDB from "./config/db.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 import userRouter from "./router/UserRoutes.js";
 import taskRouter from "./router/TaskRoute.js";
+import scheduleRouter from "./router/ScheduleRoute.js";
 dotenv.config();
 
 const port = process.env.PORT || 5000;
@@ -28,6 +29,7 @@ app.use(cookieParser());
 // routes
 app.use("/api/user", userRouter);
 app.use("/api/tasks", taskRouter);
+app.use("/api/schedules", scheduleRouter);
 
 // error middleware
 app.use(notFound);

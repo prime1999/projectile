@@ -70,7 +70,7 @@ const PricingSection = () => {
 	];
 	return (
 		<div className="mt-32">
-			<h3 className="text-center font-kanit text-semibold text-3xl text-black">
+			<h3 className="text-center font-kanit text-semibold text-3xl text-black dark:text-white">
 				Our Pricing Plan
 			</h3>
 			<p className="w-full mx-auto mt-4 text-center font-inter text-gray-400 text-sm md:w-1/2">

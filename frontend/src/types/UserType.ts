@@ -20,26 +20,43 @@ type Profile = {
 };
 
 // type interface for user document
-export interface UserDocumentType {
+export interface UserAccountType {
+	name: string;
 	username: string;
 	email: string;
 	password: string;
-	userType: string;
-	profile: Profile | [];
-	projects: string[] | [];
+	accountType: string;
 }
 
 export interface UserType {
 	username: string;
 	email: string;
-	password: string;
-	status: String;
-	message: string;
+	name: string;
+	accountType: string;
+	imageUrl: string;
+	userProfile: string;
+}
+
+// Define a type for the response
+export interface CurrentUserReturn {
+	isAuthenticated: boolean;
+	user: {
+		id: string;
+		name: string;
+		username: string;
+		email: string;
+		imageUrl: string;
+		accountType: string;
+	} | null;
+	logInTime: string;
+	theme: string;
 }
 
 export interface UserLogInType {
+	id: string;
+	name: string;
+	username: string;
 	email: string;
-	password: string;
-	status?: any;
-	message?: String;
+	imageUrl: string;
+	accountType: string;
 }

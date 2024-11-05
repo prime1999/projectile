@@ -27,7 +27,7 @@ import Logo from "@/utils/Logo";
 // import EmailVerificationModal from "@/components/modals/EmailVerificationModal";
 import { useCreateAccount } from "@/lib/react-query/config";
 import { UserAccountType } from "@/types/UserType";
-import { signInAccount } from "@/lib/appwrite/api";
+import { signInAccount, SignInWithGoogle } from "@/lib/appwrite/api";
 import { currentUser } from "@/lib/redux/AuthStore";
 import { AppDispatch } from "@/lib/redux/store";
 
@@ -61,14 +61,10 @@ const page = () => {
 	const router = useRouter();
 	// init shadcn toast
 	const { toast } = useToast();
-	// state for opening the modal
-	const [isOpen, setIsOpen] = useState<boolean>(false);
-	// state for the user data
-	const [userData, setUserData] = useState<any>(null);
 	// Queries
 	const { mutateAsync: createUserAccount } = useCreateAccount();
 	// redux init
-	const { user, isAuthenticated, isLoading } = useSelector(
+	const { isAuthenticated, isLoading } = useSelector(
 		(state: any) => state.auth
 	);
 	const dispatch = useDispatch<AppDispatch>();
@@ -76,8 +72,9 @@ const page = () => {
 	useEffect(() => {
 		if (isAuthenticated === true) {
 			form.reset();
-			router.push("/dashboard");
+			//router.push("/dashboard");
 		}
+		console.log(`${window.location.origin}${window.location.pathname}`);
 	}, [isAuthenticated]);
 
 	const {
@@ -160,7 +157,8 @@ const page = () => {
 					});
 					return;
 				}
-				// dispatch the function to check if the user is registered and signed in, then set the authenticated variable
+				// dispatch the function to check if the user is registered and signed in,
+				// then set the authenticated variable
 				dispatch(currentUser());
 			}
 		} catch (error) {
@@ -168,6 +166,16 @@ const page = () => {
 				variant: "destructive",
 				title: "Check credentials and try again",
 			});
+			console.log(error);
+		}
+	};
+
+	// FUNCTION TO SIGN IN WITH GOOGLE
+	const GoogleSignIn = async (currentPage: string) => {
+		try {
+			// call the api function to sign user in using google
+			await SignInWithGoogle(currentPage);
+		} catch (error) {
 			console.log(error);
 		}
 	};
@@ -331,7 +339,7 @@ const page = () => {
 								)}
 							/>
 						</div>
-						{/* <button
+						<button
 							disabled={isLoading}
 							type="submit"
 							className={`w-full flex gap-4 items-center justify-center mt-4 text-center ${
@@ -340,46 +348,23 @@ const page = () => {
 						>
 							{isLoading && <span className="loader"></span>}
 							Submit
-						</button> */}
-						<button
-							// disabled={isLoading}
-							type="submit"
-							className={`w-full flex gap-4 items-center justify-center mt-4 text-center bg-darkBlue hover:bg-cyan-800" font-inter font-medium text-white text-sm rounded-full py-2 duration-500`}
-						>
-							Submit
 						</button>
 						<div className="flex gap-2 items-center justify-center text-xs mb-2 mt-4">
 							<hr className="border border-gray-300 w-1/4" />
 							<p className="font-inter text-gray-500 mx-2">Or Register with</p>
 							<hr className="border border-gray-300 w-1/4" />
 						</div>
-						{/* {isOpen ? (
-							<EmailVerificationModal data={userData}>
-								<button
-									type="submit"
-									className="w-full text-center bg-darkBlue font-inter font-medium text-white text-sm rounded-full py-2 duration-500 hover:bg-cyan-800"
-								>
-									Submit
-								</button>
-							</EmailVerificationModal>
-						) : (
-							<button
-								type="submit"
-								className="w-full text-center bg-darkBlue font-inter font-medium text-white text-sm rounded-full py-2 duration-500 hover:bg-cyan-800"
-							>
-								Submit
-							</button>
-						)} */}
-
-						{/* <EmailVerificationModal
-							data={userData}
-							isOpen={isOpen}
-							setIsOpen={setIsOpen}
-						/> */}
 					</form>
 				</Form>
 				<div className="my-2">
-					<button className="w-full mt-4 text-red rounded-full flex items-center justify-center gap-4 text-center font-inter text-sm font-medium duration-500 hover:bg-red hover:text-white">
+					<button
+						onClick={() =>
+							GoogleSignIn(
+								`${window.location.origin}${window.location.pathname}`
+							)
+						}
+						className="w-full mt-4 text-red rounded-full flex items-center justify-center gap-4 text-center font-inter text-sm font-medium duration-500 hover:bg-red hover:text-white"
+					>
 						<FaGoogle />
 						<span>Sign in with Google</span>
 					</button>

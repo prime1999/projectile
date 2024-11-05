@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { CurrentUserReturn, UserType } from "@/types/UserType";
-import { getCurrentUser, signOutAccount } from "../appwrite/api";
+import {
+	getCurrentUser,
+	SignInWithGoogle,
+	signOutAccount,
+} from "../appwrite/api";
 import { saveUserStatusToLS, themeToggler } from "../utils";
 import { account } from "../appwrite/config";
 
@@ -117,7 +121,7 @@ export const authSlice = createSlice({
 				state.isLoading = false;
 				state.isAuthenticated = action?.payload?.isAuthenticated as any;
 				state.user = action?.payload?.user;
-				state.theme = action.payload.theme;
+				state.theme = action?.payload?.theme;
 			})
 			.addCase(currentUser.rejected, (state) => {
 				state.isLoading = true;

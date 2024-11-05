@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { account, ID } from "@/lib/appwrite/config";
+import { useEffect } from "react";
 // next hooks
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/lib/redux/store";
+import { currentUser } from "@/lib/redux/AuthStore";
 // react-hook-for | zod
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldErrors, useForm } from "react-hook-form";
 import { FaGoogle } from "react-icons/fa6";
+import { signInAccount } from "@/lib/appwrite/api";
 // shadcn components
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
@@ -33,14 +36,15 @@ const formSchema = z.object({
 });
 
 const page = () => {
+	const dispatch = useDispatch<AppDispatch>();
 	// init the next hook
 	const router = useRouter();
 	// init shadcn toast
 	const { toast } = useToast();
-	// state for opening the modal
-	const [isOpen, setIsOpen] = useState<boolean>(false);
-	// state for the user data
-	const [userData, setUserData] = useState<any>(null);
+	// redux init
+	const { isAuthenticated, isLoading } = useSelector(
+		(state: any) => state.auth
+	);
 	const {
 		handleSubmit,
 		control,
@@ -55,6 +59,13 @@ const page = () => {
 			password: "",
 		},
 	});
+
+	useEffect(() => {
+		if (isAuthenticated === true) {
+			form.reset();
+			router.push("/dashboard");
+		}
+	}, [isAuthenticated]);
 
 	// function to handle input errors
 	const onError = (errors: any) => {
@@ -93,17 +104,23 @@ const page = () => {
 				password: values.password,
 			};
 			try {
-				// const session = await account.getSession("current");
-				// if (session) {
-				// 	console.log(session);
-				// 	await account.deleteSession(session.$id);
-				// }
-				//const res = await logIn(userData).unwrap();
-				const res = await account.createEmailPasswordSession(
-					userData.email,
-					userData.password
-				);
-				console.log(res);
+				// sign the user in
+				const session = await signInAccount({
+					email: values.email,
+					password: values.password,
+				});
+				console.log(session);
+				// check if the user has been logged in
+				if (!session) {
+					toast({
+						variant: "destructive",
+						title: "session failed, Please check credentials and try again",
+					});
+					return;
+				}
+				// dispatch the function to check if the user is registered and signed in,
+				//then set the authenticated variable
+				dispatch(currentUser());
 			} catch (error) {
 				console.log(error);
 				toast({

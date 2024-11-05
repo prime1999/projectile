@@ -1,7 +1,13 @@
 "use client";
-import { useSelector } from "react-redux";
+
+import { useEffect, useRef } from "react";
+// next
 import Image from "next/image";
 import Link from "next/link";
+// redux
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch } from "@/lib/redux/store";
+import { currentUser } from "@/lib/redux/AuthStore";
 // shadcn components
 import {
 	Tooltip,
@@ -16,8 +22,23 @@ import { IoCalendarSharp, IoChatbubbleEllipsesSharp } from "react-icons/io5";
 import { AiOutlineLogout } from "react-icons/ai";
 
 const SideBar = () => {
-	const { userInfo } = useSelector((state) => (state as any).auth);
-	console.log(userInfo);
+	const dispatch = useDispatch<AppDispatch>();
+	const { isAuthenticated } = useSelector((state) => (state as any).auth);
+	const hasDispatched = useRef(false);
+
+	useEffect(() => {
+		if (!hasDispatched.current && isAuthenticated === false) {
+			try {
+				dispatch(currentUser());
+				console.log("User check dispatched");
+				// Set flag to true after first dispatch
+				hasDispatched.current = true;
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	}, [isAuthenticated]);
+
 	return (
 		<div className="relative h-screen w-[70px] flex flex-col px-6 pb-8 pt-4 border-r border-gray-300 dark:bg-background dark:text-white  dark:border-darkBorder">
 			<Link className="flex items-end mb-8" href="/">

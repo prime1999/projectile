@@ -3,7 +3,6 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { signOutAccount } from "./appwrite/api";
 import { account } from "./appwrite/config";
-import { useSelector } from "react-redux";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -37,6 +36,7 @@ export const calcExpiryDate = () => {
 	const threeDaysInMs = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 
 	if (timeDifference > threeDaysInMs) {
+		const signedOutSession = signOutAccount();
 		localStorage.removeItem("userStatus");
 		return true;
 	}

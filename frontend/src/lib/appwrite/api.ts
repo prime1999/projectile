@@ -6,7 +6,7 @@ import {
 	ID,
 } from "@/lib/appwrite/config";
 import { UserAccountType } from "@/types/UserType";
-import { Query } from "appwrite";
+import { OAuthProvider, Query } from "appwrite";
 
 // ============================== SIGN UP
 export const createUserAccount = async (user: UserAccountType) => {
@@ -75,6 +75,24 @@ export async function signInAccount(user: { email: string; password: string }) {
 		console.log(error);
 	}
 }
+
+// ============================== SIGN-IN/SIGN-UP WITH GOOGLE
+export const SignInWithGoogle = async (currentPage: string) => {
+	try {
+		// sign in using google
+		account.createOAuth2Session(
+			OAuthProvider.Google,
+			"http://localhost:3000/dashboard",
+			currentPage
+		);
+
+		return true;
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
+};
+
 // ============================== GET USER
 export async function getCurrentUser() {
 	try {
@@ -90,7 +108,29 @@ export async function getCurrentUser() {
 
 		console.log(currentUser);
 
-		if (!currentUser) throw Error;
+		if (currentUser.documents.length === 0) {
+			// get the user name initials
+			const avatarUrl = avatars.getInitials(currentAccount.name);
+			const user: {
+				accountId: string;
+				name: string;
+				username: string;
+				email: string;
+				imageUrl: URL;
+				accountType: string;
+			} = {
+				accountId: currentAccount.$id,
+				name: currentAccount.name,
+				username: currentAccount.name,
+				email: currentAccount.email,
+				imageUrl: avatarUrl,
+				accountType: "isClient",
+			};
+			// function to create a documents for the user
+			const newUser = await saveUserToDb(user);
+			console.log(newUser);
+			return newUser;
+		}
 
 		return currentUser.documents[0];
 	} catch (error) {

@@ -24,16 +24,10 @@ import {
 	FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+// validation
+import { loginSchema } from "@/lib/validation";
 // components
 import Logo from "@/utils/Logo";
-
-// form schema
-const formSchema = z.object({
-	email: z.string().email({
-		message: "Please enter a valid email",
-	}),
-	password: z.string(),
-});
 
 const page = () => {
 	const dispatch = useDispatch<AppDispatch>();
@@ -52,8 +46,8 @@ const page = () => {
 		formState: { errors },
 	} = useForm();
 	// define the default values of the form
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<z.infer<typeof loginSchema>>({
+		resolver: zodResolver(loginSchema),
 		defaultValues: {
 			email: "",
 			password: "",
@@ -86,7 +80,7 @@ const page = () => {
 	};
 
 	//  function to handle the submission of the form
-	const onSubmit = async (values: z.infer<typeof formSchema>) => {
+	const onSubmit = async (values: z.infer<typeof loginSchema>) => {
 		console.log(123);
 		console.log(values);
 		// check if the user has chosen an acc type

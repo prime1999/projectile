@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 // next hooks
 import Link from "next/link";
@@ -25,44 +25,33 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 // components
 import Logo from "@/utils/Logo";
 // import EmailVerificationModal from "@/components/modals/EmailVerificationModal";
-import { useCreateAccount } from "@/lib/react-query/config";
+import {
+	useConfirmEmail,
+	useCreateAccount,
+	useVerifyEmail,
+} from "@/lib/react-query/config";
 import { UserAccountType } from "@/types/UserType";
+// appwrite components
 import { signInAccount, SignInWithGoogle } from "@/lib/appwrite/api";
+// redux components
 import { currentUser } from "@/lib/redux/AuthStore";
 import { AppDispatch } from "@/lib/redux/store";
-
-// form schema
-const formSchema = z.object({
-	username: z
-		.string()
-		.min(2, { message: "Username must be at least 2 characters long" })
-		.max(15, { message: "Username must be at most 15 characters long" }),
-	firstname: z
-		.string()
-		.min(2, { message: "Username must be at least 2 characters long" }),
-
-	lastname: z
-		.string()
-		.min(2, { message: "Username must be at least 2 characters long" }),
-
-	email: z.string().email({
-		message: "Please enter a valid email",
-	}),
-	password: z
-		.string()
-		.min(8, { message: "Password must be at least 8 characters long" })
-		.max(20, { message: "Password must be at most 20 characters long" }),
-
-	accountType: z.string(),
-});
+// validation
+import { registrationSchema } from "@/lib/validation";
 
 const page = () => {
 	// init the next hook
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	// state
+	const [userId, setUserId] = useState<string>("");
+	const [secret, setSecret] = useState<string>("");
 	// init shadcn toast
 	const { toast } = useToast();
 	// Queries
 	const { mutateAsync: createUserAccount } = useCreateAccount();
+	const { mutateAsync: verifyEmail } = useVerifyEmail();
+	const { mutateAsync: confirmEmail } = useConfirmEmail({ userId, secret });
 	// redux init
 	const { isAuthenticated, isLoading } = useSelector(
 		(state: any) => state.auth
@@ -70,11 +59,22 @@ const page = () => {
 	const dispatch = useDispatch<AppDispatch>();
 
 	useEffect(() => {
+		const EmailConfirmation = async () => {
+			await confirmEmail();
+		};
 		if (isAuthenticated === true) {
-			form.reset();
-			//router.push("/dashboard");
+			const userId = searchParams.get("userId") as string;
+			const secret = searchParams.get("secret") as string;
+			if (userId === null || secret === null) {
+				return;
+			} else {
+				setUserId(userId);
+				setSecret(secret);
+				EmailConfirmation();
+				form.reset();
+				router.push("/dashboard");
+			}
 		}
-		console.log(`${window.location.origin}${window.location.pathname}`);
 	}, [isAuthenticated]);
 
 	const {
@@ -84,8 +84,8 @@ const page = () => {
 		formState: { errors },
 	} = useForm();
 	// define the default values of the form
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<z.infer<typeof registrationSchema>>({
+		resolver: zodResolver(registrationSchema),
 		defaultValues: {
 			firstname: "",
 			lastname: "",
@@ -115,7 +115,7 @@ const page = () => {
 	};
 
 	//  function to handle the submission of the form
-	const onSubmit = async (values: z.infer<typeof formSchema>) => {
+	const onSubmit = async (values: z.infer<typeof registrationSchema>) => {
 		try {
 			// checkc if the user has chosen an acc type
 			if (values.accountType === "") {
@@ -157,6 +157,19 @@ const page = () => {
 					});
 					return;
 				}
+
+				const emailVerification = await verifyEmail();
+				console.log(emailVerification);
+				if (!emailVerification) {
+					toast({
+						variant: "destructive",
+						title: "Please Enter a valid Email and try again",
+					});
+				}
+
+				toast({
+					title: "Please check your mail to complete registration",
+				});
 				// dispatch the function to check if the user is registered and signed in,
 				// then set the authenticated variable
 				dispatch(currentUser());

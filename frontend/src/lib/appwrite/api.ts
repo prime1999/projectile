@@ -20,6 +20,13 @@ export const createUserAccount = async (user: UserAccountType) => {
 
 		if (!newAccount) throw Error;
 
+		console.log(newAccount);
+
+		// // verify email provided
+		// const verifiedAccount = await verifyEmail(newAccount);
+
+		// if (!verifiedAccount) throw Error;
+
 		// get the user name initials
 		const avatarUrl = avatars.getInitials(user.name);
 		console.log("save user");
@@ -149,3 +156,45 @@ export async function signOutAccount() {
 		console.log(error);
 	}
 }
+
+// ========================= VERIFY EMAIL
+export const verifyEmail = async () => {
+	try {
+		// send the email verification url
+		const result: any = await account.createVerification(
+			"http://localhost:3000/register"
+		);
+		console.log(result);
+
+		if (!result) throw Error;
+		// // verify the user
+		// const verified = await account.updateVerification(newAccount.$id, result);
+		console.log(result);
+		return result;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+// =========================== CONFIRM EMAIL
+export const confirmEmail = async ({
+	userId,
+	secret,
+}: {
+	userId: string;
+	secret: string;
+}) => {
+	try {
+		// verify the user
+		console.log({
+			userId: `userId is ${userId}`,
+			secret: `secret is ${secret}`,
+		});
+		const verified = await account.updateVerification(userId, secret);
+		if (!verified) throw Error;
+		console.log(verified);
+		return verified;
+	} catch (error) {
+		console.log(error);
+	}
+};
